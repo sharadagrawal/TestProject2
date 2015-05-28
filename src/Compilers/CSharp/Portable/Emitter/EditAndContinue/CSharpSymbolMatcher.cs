@@ -726,7 +726,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             {
                 var members = ArrayBuilder<Cci.ITypeDefinitionMember>.GetInstance();
 
-                members.AddRange(otherType.GetEventsToEmit());
+                var events = otherType.GetEventsToEmit();
+                members.AddRange(events);
+
+                // event backing fields are omitted by GetFieldsToEmit, add them:
+                members.AddRange(events.Where(e => e.AssociatedField != null).Select(e => e.AssociatedField));
+
                 members.AddRange(otherType.GetFieldsToEmit());
                 members.AddRange(otherType.GetMethodsToEmit());
                 members.AddRange(otherType.GetTypeMembers());
